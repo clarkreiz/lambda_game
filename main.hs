@@ -10,11 +10,12 @@ newtype World = World [[String]]
 data PlayerCoord = PlayerCoord Int Int
   deriving (Show, Eq)
 
+-- Находим координаты нашего игрока
 currentPlayerPosition :: World -> Maybe PlayerCoord
 currentPlayerPosition (World world) =
-  let rowWithHero = zip [0..] world
+  let rowWithHero = zip [0..] world -- zip добавляет индексы колонкам
   in case [(row, col) | (row, line) <- rowWithHero, Just col <- [elemIndex "H" line]] of
-       ((r, c):_) -> Just (PlayerCoord c r)
+       ((r, c):_) -> Just (PlayerCoord c r) -- case {expression} of {pattern} 
        []         -> Nothing
 
 moveHero :: Direction -> World -> World
@@ -28,6 +29,7 @@ moveHero dir (World world) =
           LEFT  -> (max 0 (x - 1), y)
           RIGHT -> (min (length (head world) - 1) (x + 1), y)
     in placeHero (PlayerCoord newX newY) (clearHero (World world))
+    -- Добавляем герою на новую позицию в пустой мир
 
 clearHero :: World -> World
 clearHero (World world) =
@@ -54,7 +56,7 @@ gameLoop world = do
   printWorld world
   putStrLn "Enter a command (e.g., UP, DOWN, LEFT, RIGHT or Quit):"
   input <- getLine
-  case map toUpper input of
+  case input of
     "UP"    -> gameLoop (moveHero UP world)
     "DOWN"  -> gameLoop (moveHero DOWN world)
     "LEFT"  -> gameLoop (moveHero LEFT world)
@@ -63,10 +65,6 @@ gameLoop world = do
     _       -> do
       putStrLn "Invalid command. Try again."
       gameLoop world
-  where
-    toUpper c
-      | 'a' <= c && c <= 'z' = toEnum (fromEnum c - 32)
-      | otherwise            = c
 
 main :: IO ()
 main = do
